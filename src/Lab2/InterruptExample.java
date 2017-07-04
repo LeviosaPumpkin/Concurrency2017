@@ -14,6 +14,7 @@ public class InterruptExample {
 					System.out.println(count);
 					
 				}
+				Thread.currentThread().isInterrupted();
 			}
 		}
 	}
