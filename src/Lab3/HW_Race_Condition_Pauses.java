@@ -2,9 +2,9 @@ package Lab3;
 
 import Lab1.Utils;
 
-public class RaceCondition {
-	
-	static int count;
+public class HW_Race_Condition_Pauses {
+
+static int count;
 	
 	static class Task implements Runnable{
 		@Override
@@ -17,10 +17,16 @@ public class RaceCondition {
 		}
 
 		 private void inc() {
-			synchronized(this){
-				count++;
+				int tmp=count;
+				System.out.println("LOAD");
+				Utils.pause(1000);
+				tmp=tmp+1;
+				System.out.println("INC");
+				Utils.pause(1000);
+				count=tmp;
+				System.out.println("STORE");
+				Utils.pause(1000);
 				System.out.println(count);
-			}
 		}
 	}
 
