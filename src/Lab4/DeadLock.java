@@ -8,7 +8,7 @@ public class DeadLock {
 		Object a = new Object();
 		Object b = new Object();
 		
-		new Thread(() -> {
+		/*new Thread(() -> {
 			synchronized (a) {
 				System.out.println(Thread.currentThread() + " got"+a);
 				Utils.pause(1000);
@@ -26,7 +26,7 @@ public class DeadLock {
 					System.out.println("Got it!");
 				}
 			}
-		}).start();
+		}).start();*/
 		
 	}
 }
