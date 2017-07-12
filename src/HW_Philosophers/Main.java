@@ -15,5 +15,4 @@ public class Main {
 		cafe.newPhilosopher(0,4).start();//4-0 - deadlock!
 		
 	}
-
 }
