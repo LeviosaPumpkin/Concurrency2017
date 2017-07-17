@@ -1,5 +1,6 @@
 package Lab6;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -22,8 +23,7 @@ public class WorkerThreadWithShutdown {
 	}
 	
 	private void process(){
-		//OUTER: while (true) {
-		while (true) {
+		OUTER: while (true) {
 			Runnable task=null;
 			synchronized (tasks) {
 				while (tasks.isEmpty()) {//делаем проверку листа, пока НЕ захватили в монопольное использование - very bad!!!
@@ -31,12 +31,15 @@ public class WorkerThreadWithShutdown {
 						tasks.wait();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
-						//break OUTER;
+						break OUTER;
 					}
 				}
 				task = tasks.poll();
 			}
 			task.run();
+		}
+		for (Runnable runnable : tasks) {
+			runnable.run();
 		}
 	}
 	public void submit(Runnable task){
