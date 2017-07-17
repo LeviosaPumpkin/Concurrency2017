@@ -1,14 +1,11 @@
 package Lab6;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import Lab1.Utils;
-
 public class WorkerThreadWithShutdown {
 	
-	Queue<Runnable> tasks = new LinkedList<>();
+	Queue<Task> tasks = new LinkedList<>();
 	private Thread thread;
 	
 	public WorkerThreadWithShutdown(){
@@ -24,7 +21,7 @@ public class WorkerThreadWithShutdown {
 	
 	private void process(){
 		OUTER: while (true) {
-			Runnable task=null;
+			Task task=null;
 			synchronized (tasks) {
 				while (tasks.isEmpty()) {//делаем проверку листа, пока НЕ захватили в монопольное использование - very bad!!!
 					try {
@@ -42,7 +39,7 @@ public class WorkerThreadWithShutdown {
 			runnable.run();
 		}
 	}
-	public void submit(Runnable task){
+	public void submit(Task task){
 		synchronized (tasks) {
 			tasks.add(task);
 			tasks.notify();
