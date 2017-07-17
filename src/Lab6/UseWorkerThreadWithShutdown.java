@@ -17,15 +17,14 @@ public class UseWorkerThreadWithShutdown {
 			Utils.pause(1000);
 			System.out.println("end");
 		});
-		Utils.pause(10000);
-		worker.shutdown();
+		
 		worker.submit(() -> {
 			System.out.println("start" + Thread.currentThread());
 			Utils.pause(1000);
 			System.out.println("end");
 		});
-		
-		
+		Utils.pause(10000);
+		worker.shutdown();
 	}
 
 }

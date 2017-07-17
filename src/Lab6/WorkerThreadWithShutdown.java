@@ -3,6 +3,8 @@ package Lab6;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import Lab1.Utils;
+
 public class WorkerThreadWithShutdown {
 	
 	Queue<Runnable> tasks = new LinkedList<>();
@@ -20,7 +22,8 @@ public class WorkerThreadWithShutdown {
 	}
 	
 	private void process(){
-		OUTER: while (true) {
+		//OUTER: while (true) {
+		while (true) {
 			Runnable task=null;
 			synchronized (tasks) {
 				while (tasks.isEmpty()) {//делаем проверку листа, пока НЕ захватили в монопольное использование - very bad!!!
@@ -28,7 +31,7 @@ public class WorkerThreadWithShutdown {
 						tasks.wait();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
-						break OUTER;
+						//break OUTER;
 					}
 				}
 				task = tasks.poll();
