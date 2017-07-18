@@ -3,6 +3,7 @@ package Lab6;
 import java.util.LinkedList;
 import java.util.Queue;
 
+
 public class WorkerThreadWithShutdown {
 	
 	Queue<Task> tasks = new LinkedList<>();

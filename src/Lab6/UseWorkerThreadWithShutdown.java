@@ -9,7 +9,7 @@ public class UseWorkerThreadWithShutdown {
 		WorkerThreadWithShutdown worker = new WorkerThreadWithShutdown();
 		worker.submit(new Task());
 		worker.submit(new Task());
-		Utils.pause(5000);
+		//Utils.pause(5000);
 		worker.shutdown();
 		worker.submit(new Task());
 		

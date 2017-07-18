@@ -1,11 +1,9 @@
 package ProducerConsumer;
 
 import java.util.Random;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import Lab1.Utils;
 
 public class SuncQueueEx {
 	
@@ -13,10 +11,10 @@ public class SuncQueueEx {
 	
 	public static void main(String[] args) {
 		
-		LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<>();
+		ArrayBlockingQueue<String> window = new ArrayBlockingQueue<String>(10);
 		
-		Cook cook = new Cook(queue);
-		Waiter waiter=new Waiter(queue);
+		Cook cook = new Cook(window);
+		Waiter waiter=new Waiter(window);
 		
 		ExecutorService service = Executors.newCachedThreadPool();
 		
