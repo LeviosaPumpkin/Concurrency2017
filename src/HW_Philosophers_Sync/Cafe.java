@@ -1,18 +1,18 @@
-package HW_Philosophers;
+package HW_Philosophers_Sync;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Cafe {
 	
-	List<Fork> forks = new ArrayList<>();
+	List<Object> forks = new ArrayList<>();
 	int totalEaten;
 	final int NUMBER;
 
 	public Cafe(int n) {
 		NUMBER=n;
 		for (int i = 0; i < NUMBER; i++) {
-			forks.add(new Fork());
+			forks.add(new Object());
 		}
 	}
 	public Thread newPhilosopher(int fork1, int fork2, int num) {

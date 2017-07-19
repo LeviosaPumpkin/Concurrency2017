@@ -1,13 +1,13 @@
-package HW_Philosophers;
+package HW_Philosophers_Sync;
 
 import Lab1.Utils;
 
 public class Philosopher implements Runnable{
 	
-	private final Fork fork1, fork2;
+	private final Object fork1, fork2;
 	private int num;
 	
-	public Philosopher(Fork f1, Fork f2, int num){
+	public Philosopher(Object f1, Object f2, int num){
 		fork1=f1;
 		fork2=f2;
 		this.num=num;
@@ -16,13 +16,13 @@ public class Philosopher implements Runnable{
 	@Override
 	public void run() {
 		while (true) {
-			fork1.take();
-			fork2.take();
-			eat();
-			fork1.put();
-			fork2.put();
-			think();
-		}
+            synchronized (fork1) {
+                synchronized (fork2) {
+                    eat();
+                }
+            }
+            think();
+        }
 	}
 	private void eat() {
 		System.out.println("Philosopher "+num+" is eating");

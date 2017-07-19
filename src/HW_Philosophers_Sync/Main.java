@@ -1,4 +1,4 @@
-package HW_Philosophers;
+package HW_Philosophers_Sync;
 
 public class Main {
 	
