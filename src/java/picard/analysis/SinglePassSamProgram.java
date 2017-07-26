@@ -16,10 +16,17 @@ import picard.PicardException;
 import picard.cmdline.CommandLineProgram;
 import picard.cmdline.Option;
 import picard.cmdline.StandardOptionDefinitions;
-
+ 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Collection;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Semaphore;
 
 /**
  * Super class that is designed to provide some consistent structure between subclasses that
@@ -41,7 +48,12 @@ public abstract class SinglePassSamProgram extends CommandLineProgram {
 
     @Option(doc = "Stop after processing N reads, mainly for debugging.")
     public long STOP_AFTER = 0;
+    
+    public static final int MAX_PAIRS = 100000;
+    
+    public static final int QUEUE_CAPACITY = 10;
 
+    
     private static final Log log = Log.getInstance(SinglePassSamProgram.class);
 
     /**
@@ -101,7 +113,10 @@ public abstract class SinglePassSamProgram extends CommandLineProgram {
 
 
         final ProgressLogger progress = new ProgressLogger(log);
-
+        final ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        List<Object[]> pairs = new ArrayList<Object[]>(MAX_PAIRS);
+        final BlockingQueue<List<Object[]>> taskQueue = new LinkedBlockingQueue<List<Object[]>>(QUEUE_CAPACITY);
+        final Semaphore sem = new Semaphore(6);
         for (final SAMRecord rec : in) {
             final ReferenceSequence ref;
             if (walker == null || rec.getReferenceIndex() == SAMRecord.NO_ALIGNMENT_REFERENCE_INDEX) {
@@ -109,13 +124,45 @@ public abstract class SinglePassSamProgram extends CommandLineProgram {
             } else {
                 ref = walker.get(rec.getReferenceIndex());
             }
-
-            for (final SinglePassSamProgram program : programs) {
-                program.acceptRead(rec, ref);
+            
+            pairs.add(new Object[]{rec, ref});
+            
+            if(pairs.size() < MAX_PAIRS){
+            	continue;
             }
+            try {
+            	taskQueue.put(pairs);
 
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}            
+            //final List<Object[]> tmpPairs = pairs;
+            pairs.clear();
+            
+            service.execute(new Runnable(){
+            	public void run(){
+            		while(true){
+            			try {
+            				final List<Object[]> tmpPairs = taskQueue.take();
+            				sem.acquire();
+            				service.execute(new Runnable() {
+            				public void run() {
+            					for (Object[] objects : tmpPairs) {
+            						for (final SinglePassSamProgram program : programs) {
+            							program.acceptRead((SAMRecord) objects[0], (ReferenceSequence) objects[1]);
+            						}
+            					}
+            					sem.release();
+            				}
+            			});
+            		} catch (InterruptedException e) {
+            			e.printStackTrace();
+					}
+            		}
+            	}
+            });
             progress.record(rec);
-
+           
             // See if we need to terminate early?
             if (stopAfter > 0 && progress.getCount() >= stopAfter) {
                 break;
@@ -126,6 +173,9 @@ public abstract class SinglePassSamProgram extends CommandLineProgram {
                 break;
             }
         }
+        System.out.println("Progress.getCount() " + progress.getCount());
+        service.shutdown();
+
 
         CloserUtil.close(in);
 
